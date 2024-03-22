@@ -10,6 +10,10 @@
 # Usage: This script will listen for or connect to a z/OS OMVS			#
 # mainframe netcat session and translate the data from					#
 # ASCII to EBCDIC and back												#
+# Updates: 2024-03-22 BeS												#
+#  - Porting to python3													#
+#  - removing logo graphics												#
+#  - fixing bytes v. string handling									#
 #																		#
 # Copyright GPL 2012													#
 #########################################################################
@@ -129,28 +133,8 @@ parser = argparse.ArgumentParser(description='Script to communicate with netcat 
 parser.add_argument('-l','--listen',help='listen for incomming connections', default=False,dest='server',action='store_true')
 parser.add_argument('-i','--ip', help='remote host IP address',dest='ip')
 parser.add_argument('-p','--port', help='Port to listen on or to connect to',required=True,dest='port')
-#parser.add_argument('-d','--dinologo',help='display cool ass logo', default=False,dest='logo',action='store_true')
 args = parser.parse_args()
 results = parser.parse_args() # put the arg results in the variable results
-
-#print logo
-# if results.logo:
-# 	print(bcolors.GREEN + '''												.				.
-# 											/ `.	 .' \\
-# 							.---.  <		> <		 >	.---.
-# 							|		 \	\ - ~ ~ - /  /		|
-# 							 ~-..-~							~-..-~
-# 					 \~~~\.'										`./~~~/
-# 						\__/												\__/
-# 						 /									.-		.		\\
-# 			_._ _.-		 .-~ ~-.			 /			 }	 \/~~~/
-# 	_.-'q  }~			/				}			{				 ;		\__/
-#  {'__,	/			 (			 /			{				/			 `. ,~~|	 .		 .
-# 	`''..='~~-.__(			/_			|			 /- _			 `..-'	 \\\	 //
-# 							/ \		=/	~~--~~{		 ./|		~-.			`-..__\\\_//_._
-# 						 {	 \	+\				 \	=\ (				~ - . _ _ _..--~'"
-# 						 |	| {		}					\		\_\\
-# 						'---.o___,'				.o___,' \n''' + bcolors.BLUE + "\t\tnetEBCDICat by" +bcolors.YELLOW+ " Soldier of Fortran" + bcolors.ENDC)
 
 if not results.server:
 	try:
