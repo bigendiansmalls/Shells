@@ -70,40 +70,33 @@ e2a = [
 ]
 
 def AsciiToEbcdic(s):
-		# print(type(s))
-		# if type(s) != type(""):
-		# 	Print("Bad dat, Expected a string argument. Exiting")
-		# 	sys.exit(-1)
+# input is string, output bytes
+		if len(s) == 0:
+			return s
 
-		if len(s) == 0:  return s
-
-		new = ""
-
+		new = bytearray()
 		for i in range(len(s)):
 			if type(s) == str:
 				s = bytes(s.encode())
-	#print s[i],":",ord(s[i])
-			#new += chr(a2e[ord(s[i])])
-			new += chr(a2e[s[i]])
-		return bytes(new.encode())
+			new.append(a2e[s[i]])
+		
+		return bytes(new)
 
 def EbcdicToAscii(s):
-		# print(type(s))
-		# if type(s) != type(""):
-		# 	print("Bad data, Expected a string argument. Exiting.")
-		# 	sys.exit(-2)
-
-		if len(s) == 0:  return s
-
-		new = ""
-
+# intput is bytes, output string
+		if len(s) == 0:  
+			return s
+		
+		new = bytearray()
 		for i in range(len(s)):
-	#print s[i],":",ord(s[i])	
-			new += chr(e2a[s[i]])
-
+			if type(s) == str:
+				s = bytes(s.encode())
+			new.append(e2a[s[i]])
+		
+		new=bytes(new).decode('ascii')
 		return new
 
-##Nice colours for us to use
+# Nice colors for us to use
 class bcolors:
 		HEADER = '\033[95m'
 		BLUE = '\033[94m'
@@ -120,7 +113,7 @@ class bcolors:
 			self.RED = ''
 			self.ENDC = ''
 
-# catch the ctrl-c to exit and say something instead of Punt!
+# catch the ctrl-c to exit
 def signal_handler(signal, frame):
 	print('Kick!')
 	sys.exit(0)
@@ -130,7 +123,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def main():
 	#start argument parser
-	parser = argparse.ArgumentParser(description='Script to communicate with netcat on OMVS (z/OS IBM Mainframe UNIX)',epilog='Damn you EBCDIC!')
+	parser = argparse.ArgumentParser(description='Script to communicate with netcat on OMVS (z/OS IBM Mainframe UNIX)',epilog="Translates ASCII <-> EBCDIC")
 	parser.add_argument('-l','--listen',help='listen for incomming connections', default=False,dest='server',action='store_true')
 	parser.add_argument('-i','--ip', help='remote host IP address',dest='ip')
 	parser.add_argument('-p','--port', help='Port to listen on or to connect to',required=True,dest='port')
@@ -143,11 +136,10 @@ def main():
 			MFsock.connect( (results.ip, int(results.port)) )
 		except Exception as e:
 			print(bcolors.RED + "[ERR] could not connect to ",results.ip,":",results.port,"" + bcolors.ENDC)
-			#print(bcolors.RED + "" + e + "" + bcolors.ENDC)
 			sys.exit(0)
 
 	else:
-		if results.ip == "":
+		if results.ip != "":
 			print(bcolors.YELLOW + "[WARN] You defined IP address", results.ip, "but are in listening mode. Ignored." + bcolors.ENDC)
 		try:
 			server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -168,11 +160,11 @@ def main():
 			[MFsock, sys.stdin])
 		try:
 			buffer = MFsock.recv(128)
-			while( buffer  != ''):
+			while( buffer  != b''):
 				ascii_out = EbcdicToAscii(buffer)
+				print(ascii_out,end='')
 				buffer = MFsock.recv(128)
-				print(ascii_out, buffer)
-				if(buffer == ''):
+				if(buffer == b''):
 					break;
 		except socket.error:
 			pass
