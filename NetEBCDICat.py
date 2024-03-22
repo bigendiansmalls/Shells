@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 #########################################################################
 #					 NetEBCDICat										#
@@ -115,7 +115,7 @@ class bcolors:
 
 # catch the ctrl-c to exit
 def signal_handler(signal, frame):
-	print('Kick!')
+	print('\nCTRL+C entered. Disconnecting!')
 	sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -125,7 +125,7 @@ def main():
 	#start argument parser
 	parser = argparse.ArgumentParser(description='Script to communicate with netcat on OMVS (z/OS IBM Mainframe UNIX)',epilog="Translates ASCII <-> EBCDIC")
 	parser.add_argument('-l','--listen',help='listen for incomming connections', default=False,dest='server',action='store_true')
-	parser.add_argument('-i','--ip', help='remote host IP address',dest='ip')
+	parser.add_argument('-i','--ip', help='remote host IP address',dest='ip',default='127.0.0.1')
 	parser.add_argument('-p','--port', help='Port to listen on or to connect to',required=True,dest='port')
 	args = parser.parse_args()
 	results = parser.parse_args() # put the arg results in the variable results
@@ -140,7 +140,8 @@ def main():
 
 	else:
 		if results.ip != "":
-			print(bcolors.YELLOW + "[WARN] You defined IP address", results.ip, "but are in listening mode. Ignored." + bcolors.ENDC)
+			print(bcolors.YELLOW + "[WARN] You defined IP address", results.ip, "but have selected listening mode. Please choose one or the other. Exiting." + bcolors.ENDC)
+			sys.exit(-1)
 		try:
 			server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -175,6 +176,7 @@ def main():
 				break;
 			c = input()
 			if(c == ''):
+				#print("$ ",end="")
 				break;
 			c += "\n"
 			command = AsciiToEbcdic(c)
