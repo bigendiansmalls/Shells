@@ -1,2 +1,3 @@
-.vscode/
-Shells.code-workspace
+.vscode
+*.swp
+*.code-workspace
